@@ -31,6 +31,8 @@ class Extractor(object):
         pc.set_regions()
         pc.set_cities()
         pc.set_other()
+
+        print('{} -->'.format(values),pc.countries,pc.cities)
         return {"CITY":pc.cities,"COUNTRY":pc.countries}
 
     def buildQueries(self,tag):

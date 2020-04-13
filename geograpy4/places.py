@@ -88,12 +88,8 @@ class PlaceContext(object):
         return s
 
     def is_a_country(self, s): 
-        s = self.correct_country_mispelling(s)
-        try:
-            pycountry.countries.get(name=s)
-            return True
-        except KeyError:
-            return False
+        try: return True if pycountry.countries.get(name=s) else False
+        except: return False
 
     def places_by_name(self, place_name, column_name):
         cur = self.conn.cursor()
@@ -123,9 +119,8 @@ class PlaceContext(object):
 
     def set_countries(self):
         """Method used to find all matching countries."""
-        countries = [self.correct_country_mispelling(place)
-                     for place in self.places if self.is_a_country(place)]
-
+        places = [self.correct_country_mispelling(place) for place in self.places]
+        countries = [place for place in places if self.is_a_country(place)]
         self.country_mentions = Counter(countries).most_common()
         self.countries = list(set(countries))
 
