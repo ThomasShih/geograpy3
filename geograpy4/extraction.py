@@ -32,7 +32,6 @@ class Extractor(object):
         pc.set_cities()
         pc.set_other()
 
-        print('{} -->'.format(values),pc.countries,pc.cities)
         return {"CITY":pc.cities,"COUNTRY":pc.countries}
 
     def buildQueries(self,tag):
@@ -80,7 +79,7 @@ class Extractor(object):
 
         return query
 
-    def find_entities(self):
+    def find_entities(self,addressOnly=False):
         self.sentences = nltk.sent_tokenize(self.text) #Grab the sentences
         queries = []
 
@@ -89,7 +88,7 @@ class Extractor(object):
             self.queries = queries + self.get_query_from_sentences(sentence)
 
         #Query said list to build a database
-        return self.geocoder.queryList(self.queries)
+        return self.geocoder.queryList(self.queries,addressOnly=addressOnly)
 
         # for ne in nes:
         #     if type(ne) is nltk.tree.Tree:
