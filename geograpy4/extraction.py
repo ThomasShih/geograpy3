@@ -26,11 +26,27 @@ class Extractor(object):
 
     def convertGPELabels(self,values):
         pc = PlaceContext(values)
-        #TODO: Place Context needs to be overhauled
         pc.set_countries()
         pc.set_cities()
 
-        return {"CITY":pc.cities,"COUNTRY":pc.countries}
+        cities = pc.cities
+        countries = pc.countries
+
+
+        #TODO:Code below should be moved elsewhere to also support facility names (ex; "I like Union Station in New York and Washington DC")
+        returnListCities = []
+        returnListCountries = []
+        #If the sentence has mentioned a city or country already, only use that
+        for value in values:
+            if value in cities:
+                returnListCities.append(value)
+            if value in countries:
+                returnListCountries.append(value)
+
+        #If returnListCities and returnListCountries have no values, that means that it wasn't mentioned in the sentence. Due to this ambigiuity, use all possible values
+        if len(returnListCities) == 0: returnListCities=cities
+        if len(returnListCountries)==0:returnListCountries=countries
+        return {"CITY":returnListCities,"COUNTRY":returnListCountries}
 
     def buildQueries(self,tag):
         query = []
@@ -49,6 +65,8 @@ class Extractor(object):
                         for Country in tag["COUNTRY"]:
                             queryValue = "{} {} {} {}".format(Organization,Facility,City,Country)
                             if queryValue not in query: query.append(queryValue)
+
+        print(query)
         return query
 
     def get_query_from_sentences(self,sentence):
