@@ -1,6 +1,7 @@
 """Setup script for Geograpy Library."""
 from setuptools import setup
 
+"""Everything below is out of date, as of the fork by Thomas Shih"""
 try:
     import pypandoc
     long_description = pypandoc.convert('README.md', 'rst')

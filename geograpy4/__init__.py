@@ -1,7 +1,7 @@
 import nltk
 
-from geograpy3.extraction import Extractor
-from geograpy3.places import PlaceContext
+from geograpy4.extraction import Extractor
+from geograpy4.places import PlaceContext
 
 # download all the basic nltk toolkit
 nltk.downloader.download('maxent_ne_chunker')

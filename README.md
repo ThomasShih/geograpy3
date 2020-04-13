@@ -1,4 +1,8 @@
-<b>This repo is currently under development to try and include a way of grabing geography keywords or location names instaed of just countries, regions, and cities. All documentation are currently out of date</b>
+<b>This repo is currently under development to try and include a way of grabing geography keywords or location names instaed of just countries, regions, and cities. All documentation are currently out of date
+
+This new revision will also be an attempt at removing false positives. For a sentence such as "I love going to The Midnight Bar in my hometown Calgary.", I want the result to be only search results "The Midnight Bar"s in Calgary and nowhere else.
+
+</b>
 
 Geograpy3
 ========
