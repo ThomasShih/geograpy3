@@ -4,7 +4,9 @@ from geograpy4.places import PlaceContext
 from geograpy4.geocoder import geocoder
 
 class Extractor(object):
-    def __init__(self, value = None):
+    def __init__(self,value = None,ignoreEstablishments=True):
+        #I anticipate the establishments feature will be pretty unreliable for a long time coming, add option to ignore that feature and only focus on the cities.
+        self.ignoreEstablishments = ignoreEstablishments
         if not value:
             raise Exception('url or text is required')
         self.value = value
@@ -31,6 +33,25 @@ class Extractor(object):
         pc.set_other()
         return {"CITY":pc.cities,"COUNTRY":pc.countries}
 
+    def buildQueries(self,tag):
+        query = []
+        for key in tag: 
+            if len(tag[key])==0: tag[key].append("") #Make sure key value pairs don't return empty
+
+        if self.ignoreEstablishments:
+            for City        in tag["CITY"]:
+                for Country in tag["COUNTRY"]:
+                    queryValue = "{} {}".format(City,Country)
+                    if queryValue not in query: query.append(queryValue)
+        else:
+            for Organization        in tag["ORGANIZATION"]:
+                for Facility        in tag["FACILITY"]:
+                    for City        in tag["CITY"]:
+                        for Country in tag["COUNTRY"]:
+                            queryValue = "{} {} {} {}".format(Organization,Facility,City,Country)
+                            if queryValue not in query: query.append(queryValue)
+        return query
+
     def get_query_from_sentences(self,sentence):
         #In a given sentence, a location will either come by itself or come paired with other information
         #Example, "In New York there is a fancy restruant called Krispy Kreme" -> "Krispy Kremes, New York"
@@ -53,15 +74,7 @@ class Extractor(object):
         tag = dict(list(tag.items()) + list(self.convertGPELabels(tag["GPE"]).items()))
 
         #TODO: Earlier code should have broken up the sentences into single GPE, Facility/Organization pairs already because of this the proceeding code will just look at tall the possible combinations to build queries
-        query = []
-        for key in tag: tag[key].append("") #Make sure key value pairs don't return empty
-
-        for Organization        in tag["ORGANIZATION"]:
-            for Facility        in tag["FACILITY"]:
-                for City        in tag["CITY"]:
-                    for Country in tag["COUNTRY"]:
-                        queryValue = "{} {} {} {}".format(Organization,Facility,City,Country)
-                        if queryValue not in query: query.append(queryValue)
+        query = self.buildQueries(tag)
 
         return query
 
