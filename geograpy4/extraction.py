@@ -4,20 +4,23 @@ from geograpy4.places import PlaceContext
 from geograpy4.geocoder import geocoder
 
 class Extractor(object):
-    def __init__(self, url = None, text = None):
-        if not url and not text:
+    def __init__(self, value = None):
+        if not value:
             raise Exception('url or text is required')
-        self.url = url
-        self.text = text
+        self.value = value
         self.places = []
         self.validLabels = ["GPE","ORGANIZATION","FACILITY","PERSON"]
         self.geocoder = geocoder()
+        self.set_text() #Grab the text if not directly provided
+
     def set_text(self):
-        if not self.text and self.url:
-            a = Article(self.url)
+        try: 
+            a = Article(self.value)
             a.download()
             a.parse()
             self.text = a.text
+        except: self.text = self.value
+        del self.value
 
     def convertGPELabels(self,values):
         pc = PlaceContext(values)
@@ -63,7 +66,6 @@ class Extractor(object):
         return query
 
     def find_entities(self):
-        self.set_text() #Grab the text if not directly provided
         self.sentences = nltk.sent_tokenize(self.text) #Grab the sentences
         queries = []
 
