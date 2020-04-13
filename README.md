@@ -1,4 +1,4 @@
-<b>This entire repo is still under development and currently has only some basic functionality.  Pull requests to fix some of the outstading Issues would be appreciated, developers of all experience level welcome. </b>
+<b>This repo is currently under development to try and include a way of grabing geography keywords or location names instaed of just countries, regions, and cities. All documentation are currently out of date</b>
 
 Geograpy3
 ========
