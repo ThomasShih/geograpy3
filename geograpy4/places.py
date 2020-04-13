@@ -87,9 +87,16 @@ class PlaceContext(object):
 
         return s
 
-    def is_a_country(self, s): 
+    def is_country(self, s): 
         try: return True if pycountry.countries.get(name=s) else False
         except: return False
+
+    def is_region(self,place_name, region_names):
+        return filter(lambda rn: self.region_match(place_name, rn),region_names)
+
+    def region_match(self,place_name, region_name):
+        return fuzzy_match(remove_non_ascii(place_name),
+                            remove_non_ascii(region_name))
 
     def places_by_name(self, place_name, column_name):
         cur = self.conn.cursor()
@@ -120,7 +127,7 @@ class PlaceContext(object):
     def set_countries(self):
         """Method used to find all matching countries."""
         places = [self.correct_country_mispelling(place) for place in self.places]
-        countries = [place for place in places if self.is_a_country(place)]
+        countries = [place for place in places if self.is_country(place)]
         self.country_mentions = Counter(countries).most_common()
         self.countries = list(set(countries))
 
@@ -133,19 +140,9 @@ class PlaceContext(object):
         if not self.countries:
             self.set_countries()
 
-        def region_match(place_name, region_name):
-            return fuzzy_match(remove_non_ascii(place_name),
-                               remove_non_ascii(region_name))
-
-        def is_region(place_name, region_names):
-            return filter(lambda rn: region_match(place_name, rn),
-                          region_names)
-
         for country in self.countries:
             region_names = self.get_region_names(country)
-            matched_regions = [p for p in self.places
-                               if is_region(p, region_names)]
-
+            matched_regions = [p for p in self.places if self.is_region(p, region_names)]
             regions += matched_regions
             self.country_regions[country] = list(set(matched_regions))
 
