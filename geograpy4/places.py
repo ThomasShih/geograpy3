@@ -29,13 +29,14 @@ class PlaceContext(object):
 
     def __init__(self, place_names, db_file = None):
         """Init method."""
-        db_file = db_file or \
-            os.path.dirname(os.path.realpath(inspect.stack()[0][1])) + "/locs.db"
+        db_file = db_file or os.path.dirname(os.path.realpath(inspect.stack()[0][1])) + "/locs.db"
         self.conn = sqlite3.connect(db_file)
-        if not self.db_has_data():
-            self.populate_db()
-
+        if not self.db_has_data(): self.populate_db()
         self.places = place_names
+
+        #intialize these names
+        self.regions = None
+        self.countries = None
 
     def populate_db(self):
         """Method used to populate the data db."""
@@ -43,23 +44,22 @@ class PlaceContext(object):
         cur.execute("DROP TABLE IF EXISTS cities")
 
         table_creation = '''CREATE TABLE cities
-            (geoname_id INTEGER,
-             continent_code TEXT,
-             continent_name TEXT,
-             country_iso_code TEXT,
-             country_name TEXT,
-             subdivision_iso_code TEXT,
-             subdivision_name TEXT,
-             city_name TEXT,
-             metro_code TEXT,
-             time_zone TEXT)'''
+                            (geoname_id INTEGER,
+                            continent_code TEXT,
+                            continent_name TEXT,
+                            country_iso_code TEXT,
+                            country_name TEXT,
+                            subdivision_iso_code TEXT,
+                            subdivision_name TEXT,
+                            city_name TEXT,
+                            metro_code TEXT,
+                            time_zone TEXT)'''
         cur.execute(table_creation)
         cur_dir = os.path.dirname(os.path.realpath(inspect.stack()[0][1]))
         with open(cur_dir + "/data/GeoLite2-City-Locations.csv", "r", encoding = 'utf8') as info:
             reader = csv.reader(info)
             for row in reader:
                 cur.execute("INSERT INTO cities VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", row)
-
             self.conn.commit()
 
     def db_has_data(self):
@@ -95,18 +95,14 @@ class PlaceContext(object):
         return filter(lambda rn: self.region_match(place_name, rn),region_names)
 
     def region_match(self,place_name, region_name):
-        return fuzzy_match(remove_non_ascii(place_name),
-                            remove_non_ascii(region_name))
+        return fuzzy_match(remove_non_ascii(place_name),remove_non_ascii(region_name))
 
     def places_by_name(self, place_name, column_name):
         cur = self.conn.cursor()
         cur.execute('SELECT * FROM cities WHERE ' + column_name + ' = "' + place_name + '"')
         rows = cur.fetchall()
 
-        if len(rows) > 0:
-            return rows
-
-        return None
+        return rows if len(rows) > 0 else None
 
     def cities_for_name(self, city_name):
         return self.places_by_name(city_name, 'city_name')
@@ -198,15 +194,14 @@ class PlaceContext(object):
         all_cities = [p for p in self.places if p in self.cities]
         self.city_mentions = Counter(all_cities).most_common()
 
-    def set_other(self):
-        """Method used when the found data is not found."""
-        if not self.cities:
-            self.set_cities()
+    # def set_other(self):
+    #     """Method used when the found data is not found."""
+    #     if not self.cities:
+    #         self.set_cities()
 
-        def unused(place_name):
-            places = [self.countries, self.cities, self.regions]
-            return all(self.correct_country_mispelling(place_name)
-                       not in l for l in places)
+    #     def unused(place_name):
+    #         places = [self.countries, self.cities, self.regions]
+    #         return all(self.correct_country_mispelling(place_name)
+    #                    not in l for l in places)
 
-        self.other = [p for p in self.places if unused(p)]
-        
+    #     self.other = [p for p in self.places if unused(p)]

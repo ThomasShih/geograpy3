@@ -28,9 +28,7 @@ class Extractor(object):
         pc = PlaceContext(values)
         #TODO: Place Context needs to be overhauled
         pc.set_countries()
-        pc.set_regions()
         pc.set_cities()
-        pc.set_other()
 
         return {"CITY":pc.cities,"COUNTRY":pc.countries}
 
