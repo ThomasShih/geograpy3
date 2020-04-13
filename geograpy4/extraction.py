@@ -57,7 +57,8 @@ class Extractor(object):
             for Facility        in tag["FACILITY"]:
                 for City        in tag["CITY"]:
                     for Country in tag["COUNTRY"]:
-                        query.append("{} {} {} {}".format(Organization,Facility,City,Country))
+                        queryValue = "{} {} {} {}".format(Organization,Facility,City,Country)
+                        if queryValue not in query: query.append(queryValue)
 
         return query
 

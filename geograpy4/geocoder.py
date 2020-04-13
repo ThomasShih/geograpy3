@@ -15,5 +15,4 @@ class geocoder:
             result = self.queryGeocoder(queryString)
             if result: result = result.raw
             if result not in results: results.append(result)
-
         return results
