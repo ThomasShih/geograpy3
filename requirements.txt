@@ -1,0 +1,8 @@
+newspaper3k==0.2.8
+geopy==1.21.0
+jellyfish==0.7.2
+nltk==3.4.5
+geograpy3==1.0.0
+pycountry==19.8.18
+newspaper==0.1.0.7
+pypandoc==1.5

@@ -1,13 +1,17 @@
-<b>This repo is currently under development to try and include a way of grabing geography keywords or location names instaed of just countries, regions, and cities. All documentation are currently out of date
+<b>
 
-This new revision will also be an attempt at removing false positives. For a sentence such as "I love going to The Midnight Bar in my hometown Calgary.", I want the result to be only search results "The Midnight Bar"s in Calgary and nowhere else.
+TODO: One TODO is left in this version of Geograpy, which is being able to handle names as establishment (ie St'George's Square). This message will be removed when this feature is added.
 
 </b>
 
-Geograpy3
+Geograpy4
 ========
 
-Geograpy3 fixes issues caused by using Geograpy with later versions of Python 3 (specifically in the Spyder IDE of Anaconda, but should work with Pyhon 3 in general). Most functionalities have remained the same as in Geograpy (and Geograpy2) while others may have changed slightly to work in Python 3.  Its core functionality is to extract place names from a URL or text, and add context to those names -- for example distinguishing between a country, region or city.  For more information on installation, usage, and syntax, please continue reading below.
+Geograpy4 improves upon the work of Geograpy3,2, and 1 by allowing for the search of facility names within a city, country, or region. For example, an input of "I like union station in Washington and New York" will return both the addresses Union Station in DC and NY, instead of just the name of the city, country, and region.
+
+Geograpy4 also improves upon how these are grabbed, the previous version's code now help in the building of queries to search in Nominatim via GeoPy. This will now allow for users to get complete location data in line with GeoPy's geocoder raw return values, which contains much more data than what was currently returned by Geograpy3.
+
+Functionalities are different from Geograpy3,2, and 1. For those who are familar with the previous versions, there is no more return for a places object where you can get cities, regions, or countries. This is because complete address is now returned in an array, or the complete raw geocoded data of which you can build a DataFrame out of and query everything you need and then more.
 
 ## Install
 
@@ -21,83 +25,28 @@ Try using one of the following:
 
 Import the module, give a URL or text, and presto.
 
-    import geograpy3
-    link = 'http://www.bbc.com/news/world-europe-26919928'
-    places = geograpy3.get_place_context(url = link)
-    
-    text_input = "Perfect just Perfect! It's a perfect storm for Nairobi"
-    more_places = geograpy3.get_place_context(text = text_input)
+    import geograpy4
+    input = "http://www.bbc.com/news/world-europe-26919928"
+    more_places = geograpy4.get_place_context(input)
+or
 
-Now you have access to information about all the places mentioned in the linked 
-article. 
+    import geograpy4
+    input = "Perfect just Perfect! It's a perfect storm for Nairobi"
+    more_places = geograpy4.get_place_context(input)
 
-* `places.countries` _contains a list of country names_
-* `places.regions` _contains a list of region names_
-* `places.cities` _contains a list of city names_
-* `places.other` _lists everything that wasn't clearly a country, region or city_
+Other optional parameters for get_place_context are:
+    **addressOnly=False (Return array of addresses (True) or raw geocoded data (False))**
+    **ignoreEstablishments=True (Returns only the country,city,region data (True) or add possible establishment data as well (False))**
 
-Note that the `other` list might be useful for shorter texts, to pull out 
-information like street names, points of interest, etc, but at the moment is 
-a bit messy when scanning longer texts that contain possessive forms of proper 
-nouns (like "Russian" instead of "Russia").
+Note that the return values for ignoreEstablishments=False are currently not as good as I hope it to be, and I will be improving upon it in the future
 
 ## Advanced Usage
 
-In addition to listing the names of discovered places, you'll also get some 
-information about the relationships between places.
-
-* `places.country_regions` _regions broken down by country_
-* `places.country_cities` _cities broken down by country_
-* `places.address_strings` _city, region, country strings useful for geocoding_
-
-While a text might mention many places, it's probably focused on one or two, so 
-Geograpy3 also breaks down countries, regions and cities by number of mentions.
-
-* `places.country_mentions`
-* `places.region_mentions`
-* `places.city_mentions`
-
-Each of these returns a list of tuples. The first item in the tuple is the place 
-name and the second item is the number of mentions. For example:
-
-    [('Russian Federation', 14), (u'Ukraine', 11), (u'Lithuania', 1)]  
-
-## Running Modules Separately
-
-You can of course use each of Geograpy3's modules on their own. For example:
-
-    from geograpy3 import extraction
-
-    e = extraction.Extractor(url = 'http://www.bbc.com/news/world-europe-26919928')
-    e.find_entities()
-
-    # You can now access all of the places found by the Extractor
-    print(e.places)
-
-Place context is handled in the `places` module. For example:
-
-    from geograpy3 import places
-
-    pc = places.PlaceContext(['Cleveland', 'Ohio', 'United States'])
-    
-    pc.set_countries()
-    print(pc.countries) #['United States']
-
-    pc.set_regions()
-    print(pc.regions) #['Ohio']
-
-    pc.set_cities()
-    print(pc.cities) #['Cleveland']
-
-    print(pc.address_strings) #['Cleveland, Ohio, United States']
-
-And of course all of the other information shown above (`country_regions` etc) 
-is available after the corresponding `set_` method is called.
-
+Advanced usages are removed. Requests may be considered to add.
 
 ## Opening a Ticket
 
-If you have found a bug or issue in Geograpy3, please submit a ticket to the Issues tab above, and describe in as much detail as possible all circumstances, inputs, and outputs surrounding said bug.  Thank you for your help!
+If you have found a bug or issue in Geograpy4, please submit a ticket to the Issues tab above, and describe in as much detail as possible all circumstances, inputs, and outputs surrounding said bug.  Thank you for your help!
 
 
 ## Developers
@@ -111,20 +60,22 @@ For branches/pull requests unrelated to Issues, please use standard naming conve
 
 
 ## Credits
-Geograpy3 was originally forked from [lesingerouge's Geograpy](https://github.com/lesingerouge/geograpy), who originally forked from [ushahidi's Geograpy](https://github.com/ushahidi/geograpy), who I believe is the original creator of Geograpy.  Geograpy3 also used some material and inspiration from [Corollarium's Geograpy2](https://github.com/Corollarium/geograpy2).
+Geograpy4 was originally forked from [jmbielec's Geograpy3](https://github.com/jmbielec/geograpy3), which was forked from [lesingerouge's geograpy2](https://github.com/lesingerouge/geograpy), who originally forked from [ushahidi's Geograpy](https://github.com/ushahidi/geograpy), according to GitHub.
 
 
-Geograpy3 uses the following excellent libraries:
+Geograpy4 uses the following excellent libraries:
 
 * [NLTK](http://www.nltk.org/) for entity recognition
 * [newspaper](https://github.com/codelucas/newspaper) for text extraction from HTML
 * [jellyfish](https://github.com/sunlightlabs/jellyfish) for fuzzy text match
 * [pycountry](https://pypi.python.org/pypi/pycountry) for country/region lookups
+* [GeoPy](https://geopy.readthedocs.io/en/stable/) for geocoder lookups
 
-Geograpy3 uses the following data sources:
+Geograpy4 uses the following data sources:
 
 * [GeoLite2](http://dev.maxmind.com/geoip/geoip2/geolite2/) for city lookups
 * [ISO3166ErrorDictionary](https://github.com/bodacea/countryname/blob/master/countryname/databases/ISO3166ErrorDictionary.csv) for common country mispellings _via [Sara-Jayne Terp](https://github.com/bodacea)_
+* [Nominatim](https://nominatim.openstreetmap.org/) for address search (through GeoPy)
 
 Hat tip to [Chris Albon](https://github.com/chrisalbon) for the name.
 
