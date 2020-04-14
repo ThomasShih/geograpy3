@@ -87,16 +87,18 @@ class Extractor(object):
         self.filterByContext()
 
         query = self.buildQueries(self.tag)
-
         return query
 
     def find_entities(self,addressOnly=False):
         self.sentences = nltk.sent_tokenize(self.text) #Grab the sentences
-        queries = []
+        self.queries = []
 
         #Build a query list
         for sentence in self.sentences:
-            self.queries = queries + self.get_query_from_sentences(sentence)
+            self.queries = self.queries + self.get_query_from_sentences(sentence)
+
+        #Clean the output
+        returnList = [item for item in self.geocoder.queryList(self.queries,addressOnly=addressOnly) if item != None]
 
         #Query said list to build a database
-        return self.geocoder.queryList(self.queries,addressOnly=addressOnly)
+        return returnList
