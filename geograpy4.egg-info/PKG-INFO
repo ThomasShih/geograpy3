@@ -1,0 +1,11 @@
+Metadata-Version: 1.1
+Name: geograpy4
+Version: 1.0.2
+Summary: Extract locations from a URL or text and returns the geocoded data
+Home-page: https://github.com/ThomasShih/geograpy4
+Author: Thomas Shih
+Author-email: tshih113@gmail.com
+License: MIT
+Download-URL: https://github.com/ThomasShih/geograpy4
+Description: Please check the README.md in https://github.com/ThomasShih/geograpy4.
+Platform: UNKNOWN
