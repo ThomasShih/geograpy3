@@ -34,9 +34,10 @@ or
     more_places = geograpy4.get_place_context(input)
 
 Other optional parameters for get_place_context are:
-addressOnly=False (Return array of addresses (True) or raw geocoded data (False))
+
+**addressOnly=False (Return array of addresses (True) or raw geocoded data (False))**
     
-ignoreEstablishments=True (Returns only the country,city,region data (True) or add possible establishment data as well (False))
+**ignoreEstablishments=True (Returns only the country,city,region data (True) or add possible establishment data as well (False))**
 
 Note that the return values for ignoreEstablishments=False are currently not as good as I hope it to be, and I will be improving upon it in the future
 
