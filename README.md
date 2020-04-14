@@ -18,8 +18,7 @@ Functionalities are different from Geograpy3,2, and 1. For those who are familar
 Grab the package using `pip` and `git` (this could take a few minutes)
 Try using one of the following:
 
-    1. pip install git+git://github.com/jmbielec/geograpy3.git 
-    2. pip install git+https://github.com/jmbielec/geograpy3.git 
+    1. pip install geograpy4
 
 ## Getting Started
 

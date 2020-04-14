@@ -1,0 +1,6 @@
+numpy
+nltk
+jellyfish
+pycountry
+newspaper3k
+geopy
