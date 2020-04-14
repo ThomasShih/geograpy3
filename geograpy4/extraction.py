@@ -28,25 +28,7 @@ class Extractor(object):
         pc = PlaceContext(values)
         pc.set_countries()
         pc.set_cities()
-
-        cities = pc.cities
-        countries = pc.countries
-
-
-        #TODO:Code below should be moved elsewhere to also support facility names (ex; "I like Union Station in New York and Washington DC")
-        returnListCities = []
-        returnListCountries = []
-        #If the sentence has mentioned a city or country already, only use that
-        for value in values:
-            if value in cities:
-                returnListCities.append(value)
-            if value in countries:
-                returnListCountries.append(value)
-
-        #If returnListCities and returnListCountries have no values, that means that it wasn't mentioned in the sentence. Due to this ambigiuity, use all possible values
-        if len(returnListCities) == 0: returnListCities=cities
-        if len(returnListCountries)==0:returnListCountries=countries
-        return {"CITY":returnListCities,"COUNTRY":returnListCountries}
+        return {"CITY":pc.cities,"COUNTRY":pc.countries}
 
     def buildQueries(self,tag):
         query = []
@@ -65,9 +47,21 @@ class Extractor(object):
                         for Country in tag["COUNTRY"]:
                             queryValue = "{} {} {} {}".format(Organization,Facility,City,Country)
                             if queryValue not in query: query.append(queryValue)
-
-        print(query)
         return query
+
+    def filterByContext(self):
+        returnListCities = []
+        returnListCountries = []
+        #If the sentence has mentioned a city or country already, only use that
+        for value in self.tag["GPE"]:
+            if value in self.tag["CITY"]:
+                returnListCities.append(value)
+            if value in self.tag["COUNTRY"]:
+                returnListCountries.append(value)
+
+        #If returnListCities and returnListCountries have no values, that means that it wasn't mentioned in the sentence. Due to this ambigiuity, use all possible values
+        if len(returnListCities) > 0 : self.tag["CITY"]=returnListCities
+        if len(returnListCountries)>0: self.tag["COUNTRY"]=returnListCountries
 
     def get_query_from_sentences(self,sentence):
         #In a given sentence, a location will either come by itself or come paired with other information
@@ -75,7 +69,6 @@ class Extractor(object):
         #Example, "Two musuems in Washington DC is the Simithsonian National Museum and the National Gallery of Art" -> "Simithsonian National Museum, Washington DC" and "National Gallery of Art, Washington DC"
         #Example, "I really like Cancun, Mexico" -> "Cancun, Mexico"
         #TODO: I will currently write the code to ignore the possibility that a location includes a name (ie. "St.George's Square"), this functionality should be added in the future
-        #TODO: Code also needs to be written to enliminate results of "Toronto, Australia" if Canada was mentioned in the sentence
         text = nltk.word_tokenize(sentence)
         nes = nltk.ne_chunk(nltk.pos_tag(text))
 
@@ -88,10 +81,12 @@ class Extractor(object):
                     tag[ne.label()].append(value)
 
         #Convert Geopolitical entries to their type (City, Region, Country)
-        tag = dict(list(tag.items()) + list(self.convertGPELabels(tag["GPE"]).items()))
+        self.tag = dict(list(tag.items()) + list(self.convertGPELabels(tag["GPE"]).items()))
 
-        #TODO: Earlier code should have broken up the sentences into single GPE, Facility/Organization pairs already because of this the proceeding code will just look at tall the possible combinations to build queries
-        query = self.buildQueries(tag)
+        #Filter the possible combinations by context
+        self.filterByContext()
+
+        query = self.buildQueries(self.tag)
 
         return query
 
@@ -105,9 +100,3 @@ class Extractor(object):
 
         #Query said list to build a database
         return self.geocoder.queryList(self.queries,addressOnly=addressOnly)
-
-        # for ne in nes:
-        #     if type(ne) is nltk.tree.Tree:
-        #         if (ne.label() == 'GPE' or ne.label() == 'PERSON' or ne.label() == 'ORGANIZATION'):
-        #             value = u' '.join([i[0] for i in ne.leaves()])
-        #             self.places.append(value)

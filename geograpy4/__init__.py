@@ -12,6 +12,6 @@ nltk.downloader.download('punkt')
 nltk.downloader.download('averaged_perceptron_tagger')
 
 
-def get_place_context(value=None,addressOnly=False):
-    e = Extractor(value)
+def get_place_context(value=None,addressOnly=False,ignoreEstablishments=True):
+    e = Extractor(value,ignoreEstablishments=ignoreEstablishments)
     return e.find_entities(addressOnly)
