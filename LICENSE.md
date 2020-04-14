@@ -1,5 +1,6 @@
-Copyright for portions of geograpy4 are held by Matthew Bielec, 2017 as part of geograpy3.
-Copyright for portions of geograpy3 are held by Corollarium, 2015 as part of geograpy2.
+Copyright for portions of geograpy4 are held by:
+Matthew Bielec, 2017 as part of geograpy3.
+Corollarium, 2015 as part of geograpy2.
 All other copyright for geograpy4 are held by Thomas Shih, 2020.
 
 The MIT License (MIT)

@@ -23,7 +23,6 @@ Takes a list of place names and works place designation (country, region, etc.)
 and relationships between places (city is inside region is inside country, etc.)
 """
 
-
 class PlaceContext(object):
     """Class that matches strings to places."""
 
