@@ -11,6 +11,6 @@ nltk.downloader.download('maxent_treebank_pos_tagger')
 nltk.downloader.download('punkt')
 nltk.downloader.download('averaged_perceptron_tagger')
 
-def get_place_context(value=None,addressOnly=False,ignoreEstablishments=True):
+def get_place_context(value=None,addressOnly=False,ignoreEstablishments=False):
     e = Extractor(value,ignoreEstablishments=ignoreEstablishments)
     return e.find_entities(addressOnly)

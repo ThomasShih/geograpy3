@@ -11,7 +11,7 @@ class Extractor(object):
             raise Exception('url or text is required')
         self.value = value
         self.places = []
-        self.validLabels = ["GPE","ORGANIZATION","FACILITY","PERSON"]
+        self.validLabels = ["GPE","ORGANIZATION","FACILITY"]
         self.geocoder = geocoder()
         self.set_text() #Grab the text if not directly provided
 
@@ -47,6 +47,7 @@ class Extractor(object):
                         for Country in tag["COUNTRY"]:
                             queryValue = "{} {} {} {}".format(Organization,Facility,City,Country)
                             if queryValue not in query: query.append(queryValue)
+
         return query
 
     def filterByContext(self):
@@ -63,17 +64,40 @@ class Extractor(object):
         if len(returnListCities) > 0 : self.tag["CITY"]=returnListCities
         if len(returnListCountries)>0: self.tag["COUNTRY"]=returnListCountries
 
+    def checkForHumanNameEstablishments(self,nes):
+        #There are two ways in which the NLTK will categorize these sort of establishments
+        #TODO: Maybe there are more methods of saying a establishment? If so, add it in here
+        facilityList = []
+        for i,ne in enumerate(nes):
+            if type(ne) is nltk.tree.Tree:
+                if ne.label() == "PERSON":
+                    #If input is "St George Square", it is classified as a PERSON with a triple proper noun of [('St', 'NNP'), ('George', 'NNP'), ('Square', 'NNP')]
+                    nounCount = 0
+                    for subNe,subNeType in ne:
+                        if subNeType == "NNP": nounCount += 1
+                    if nounCount == 3:
+                        facilityList.append(" ".join(x for x,label in ne))
+                        break
+
+                    #If input is "St George's Square" it's classified as a PERSON with a double noun, a posessive, and a finally a proper noun [(PERSON St/NNP George/NNP),("'s", 'POS'),('Square', 'NNP')]
+                    if nes[i+1][0] == "\'s" and nes[i+1][1] == "POS" and nes[i+2][1] == "NNP": #If the first position after is a posessive tag and the second position after ne is a proper noun
+                        facilityList.append("{}\'s {}".format(" ".join(x for x,label in ne),nes[i+2][0]))
+
+        return facilityList
+
     def get_query_from_sentences(self,sentence):
         #In a given sentence, a location will either come by itself or come paired with other information
         #Example, "In New York there is a fancy restruant called Krispy Kreme" -> "Krispy Kremes, New York"
         #Example, "Two musuems in Washington DC is the Simithsonian National Museum and the National Gallery of Art" -> "Simithsonian National Museum, Washington DC" and "National Gallery of Art, Washington DC"
         #Example, "I really like Cancun, Mexico" -> "Cancun, Mexico"
-        #TODO: I will currently write the code to ignore the possibility that a location includes a name (ie. "St.George's Square"), this functionality should be added in the future
         text = nltk.word_tokenize(sentence)
         nes = nltk.ne_chunk(nltk.pos_tag(text))
 
         #Create a dictionary of place values acquired by NLTK
         tag = dict((label,[]) for label in self.validLabels)
+
+        tag["FACILITY"] = self.checkForHumanNameEstablishments(nes)
+
         for ne in nes:
             if type(ne) is nltk.tree.Tree:
                 if (ne.label() in self.validLabels):
@@ -87,6 +111,7 @@ class Extractor(object):
         self.filterByContext()
 
         query = self.buildQueries(self.tag)
+
         return query
 
     def find_entities(self,addressOnly=False):
