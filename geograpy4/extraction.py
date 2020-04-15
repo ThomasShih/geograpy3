@@ -72,15 +72,11 @@ class Extractor(object):
             if type(ne) is nltk.tree.Tree:
                 if ne.label() == "PERSON":
                     #If input is "St George Square", it is classified as a PERSON with a triple proper noun of [('St', 'NNP'), ('George', 'NNP'), ('Square', 'NNP')]
-                    nounCount = 0
-                    for subNe,subNeType in ne:
-                        if subNeType == "NNP": nounCount += 1
-                    if nounCount == 3:
+                    if [x[1] for x in ne].count("NNP") == 3 and len(ne) == 3: #If the count of NNPs in ne is 3 and only NNPs exist, append it into facilityList
                         facilityList.append(" ".join(x for x,label in ne))
-                        break
 
                     #If input is "St George's Square" it's classified as a PERSON with a double noun, a posessive, and a finally a proper noun [(PERSON St/NNP George/NNP),("'s", 'POS'),('Square', 'NNP')]
-                    if nes[i+1][0] == "\'s" and nes[i+1][1] == "POS" and nes[i+2][1] == "NNP": #If the first position after is a posessive tag and the second position after ne is a proper noun
+                    elif nes[i+1][0] == "\'s" and nes[i+1][1] == "POS" and nes[i+2][1] == "NNP": #If the first position after is a posessive tag and the second position after ne is a proper noun
                         facilityList.append("{}\'s {}".format(" ".join(x for x,label in ne),nes[i+2][0]))
 
         return facilityList
